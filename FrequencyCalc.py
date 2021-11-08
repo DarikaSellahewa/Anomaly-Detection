@@ -61,11 +61,11 @@ def getLocalFreqTable(vertices, edges):
 
 def getGlobalThresholds(frequencyTable):
     # calculating global frequency threshold
-    fre_table = frequencyTable.sort_values(by=["Freq_dist"])
+    fre_table = frequencyTable.sort_values(by=["Frequency"])
 
 
-    high_threshold = fre_table["Freq_dist"].quantile(.99, interpolation="midpoint")
-    medium_threshold = fre_table["Freq_dist"].quantile(.97, interpolation="midpoint")
+    high_threshold = fre_table["Scaled_Freq"].quantile(.97, interpolation="midpoint")
+    medium_threshold = fre_table["Scaled_Freq"].quantile(.20, interpolation="midpoint")
     
     return high_threshold, medium_threshold
 
@@ -83,6 +83,7 @@ def freqTableAdjust(fre_Table):
 
 def getLocalThresholds(localFreqTable):
     event_threshold_table = pd.DataFrame()
+    adjFreqTable = pd.DataFrame()
     localFreqTable = localFreqTable.sort_values(by=["Event"])
     for event in localFreqTable['Event'].unique():
         temp_event = localFreqTable[localFreqTable.Event == event]
@@ -93,17 +94,19 @@ def getLocalThresholds(localFreqTable):
     
         # normalising data
         event_scaler = preprocessing.MinMaxScaler()
-        temp_event[['Scaled_freq']] = event_scaler.fit_transform(temp_event[['Frequency']])
+        temp_event[['Scaled_Freq']] = event_scaler.fit_transform(temp_event[['Frequency']])
     
         high_event_threshold = temp_event.sort_values(
-            by=['Freq_dist']).quantile(.99, interpolation='midpoint')
+            by=['Frequency']).quantile(.99, interpolation='midpoint')
         medium_event_threshold = temp_event.sort_values(
-            by=['Freq_dist']).quantile(.97, interpolation='midpoint')
+            by=['Frequency']).quantile(.05, interpolation='midpoint')
         temp_thresh = pd.DataFrame({"Event": [event], "High Threshold": [
                                    high_event_threshold['Frequency']], "Medium Threshold": [medium_event_threshold['Frequency']]})
         event_threshold_table = event_threshold_table.append(temp_thresh)
-                
-        adjFreqTable = freqTableAdjust(localFreqTable)
-        
+        #temp_frq_event = pd.DataFrame({"Event": [event], "Freq_dist": [temp_event['Freq_dist'][0]], "Scaled_freq": [temp_event['Scaled_freq'][0]]})
+        #adjFreqTable = adjFreqTable.append(temp_frq_event)    
+    adjFreqTable = freqTableAdjust(localFreqTable)
+    
+    #adjFreqTable.set_index('Event')
     return event_threshold_table, adjFreqTable
 

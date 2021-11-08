@@ -77,7 +77,7 @@ def globalVisualisation(vertices, filename):
         #anomaly.ig.plot(anomaly_graph, outname, **visual_style)
         ig.plot(anomaly_graph, **visual_style)
     
-        return anomaly_graph, visual_style
+        return anomaly_graph, visual_style, fre_table, colors
 
     
 def graphlVisualisation(freqTable, colorFrame):
