@@ -49,7 +49,7 @@ def modelTrain(freqTable, colorFrame, filename):
     colorframe.reset_index(drop=True, inplace=True)
     class_table = pd.concat([class_table, colorframe], axis=1 )
     
-    class_dict = class_table[["Event","Freq_dist"]].to_dict('records')
+    class_dict = class_table[["Event","Frequency"]].to_dict('records')
     class_target = class_table['Color']
     
     model =  Model()
@@ -63,7 +63,7 @@ def modelTrain(freqTable, colorFrame, filename):
 def getPrediction(freqTable, filename):
     
     dataset = createTrainingSet(freqTable)
-    test_dict = dataset[["Event","Freq_dist"]].to_dict('records')
+    test_dict = dataset[["Event","Frequency"]].to_dict('records')
     
     #Predicting
     model = Model()
@@ -72,7 +72,7 @@ def getPrediction(freqTable, filename):
     
     return labels
     
-def getAccuracy(freqTable, colorFrame, filename):
+def validate(freqTable, colorFrame, filename):
     
     class_table = createTrainingSet(freqTable)
     #adding color column
@@ -81,7 +81,7 @@ def getAccuracy(freqTable, colorFrame, filename):
     colorframe.reset_index(drop=True, inplace=True)
     class_table = pd.concat([class_table, colorframe], axis=1 )
     
-    class_dict = class_table[["Event","Freq_dist"]].to_dict('records')
+    class_dict = class_table[["Event","Frequency"]].to_dict('records')
     class_target = class_table['Color']
     
     model =  Model()

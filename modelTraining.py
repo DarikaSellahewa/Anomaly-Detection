@@ -13,14 +13,17 @@ import ColorAssign as colorAssign
 import NaiveBayes as naiveBayes
 import GraphViz as grpahViz
 import neighGraphViz as neighbourGraph
-
+import csv
 
 
 def prepareData():
     #reading dataset as batch file
     file = pd.read_csv("Data file.csv", delimiter=",")
-    #file = file[0:300]
-    log_event = preProcess.preProcess(file)
+    training_data = file.sample(frac = 0.75)
+    testing_data = file.sample(frac = 0.25)
+    training_data.to_csv('Train data.csv')
+    testing_data.to_csv('Test data.csv')
+    log_event = preProcess.preProcess(training_data)
     vertices = subgraph.getVertices(log_event)
     edges = subgraph.getEdges(vertices)
     
@@ -31,7 +34,7 @@ def trainGlobalModel():
     vertices, edges = prepareData()
     #for global frequency calculation
     fre_table = freqCalc.getGlobalFreqTable(vertices, edges)
-    #fre_table = fre_table.drop(labels = [8002,8020,8001,4689], axis = 0)
+    #fre_table = freqCalc.getLocalFreqTable(vertices, edges)
     high,medium = freqCalc.getGlobalThresholds(fre_table)
     color_frame = colorAssign.getGlobalColours(fre_table, high, medium)
     graph,visual = grpahViz.graphlVisualisation(fre_table, color_frame['Color'])
@@ -42,7 +45,7 @@ def trainGlobalModel():
     filename = "Completed_model_g.joblib"
     model = naiveBayes.modelTrain(fre_table, color_frame, filename)
     #validation
-    accuracy, balanced_acc, weighted_precision, weighted_recall = naiveBayes.getAccuracy(fre_table, color_frame, filename)
+    accuracy, balanced_acc, weighted_precision, weighted_recall = naiveBayes.validate(fre_table, color_frame, filename)
 
     return accuracy, balanced_acc, weighted_precision, weighted_recall
 
@@ -65,7 +68,7 @@ def trainLocalModel():
     filename = "Completed_model_l.joblib"
     model = naiveBayes.modelTrain(adjusted_table, color_frame, filename)
     #validation
-    accuracy, balanced_acc, weighted_precision, weighted_recall = naiveBayes.getAccuracy(adjusted_table, color_frame, filename)
+    accuracy, balanced_acc, weighted_precision, weighted_recall = naiveBayes.validate(adjusted_table, color_frame, filename)
     
     return accuracy, balanced_acc, weighted_precision, weighted_recall
 
@@ -74,9 +77,10 @@ def trainLocalModel():
 accuracy, balanced_acc, weighted_precision, weighted_recall = trainGlobalModel()
 accuracy, balanced_acc, weighted_precision, weighted_recall = trainLocalModel()
 
+#To visualize the neighbor events in the grpah format
 vertices, edges = prepareData()
 eventFreqTable = freqCalc.getLocalFreqTable(vertices, edges)
-neighbourGraph.getNeighbourGraph(8002, 2, eventFreqTable)
+#neighbourGraph.getNeighbourGraph(8002, 2, eventFreqTable)
 
 
 
