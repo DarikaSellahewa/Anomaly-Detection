@@ -18,7 +18,7 @@ def preProcess(logFile):
                        ' RESOURCE',' USERNAME' ]]
 
     #filtering data from the host machine and snare server
-    log_event = file[file[" SYSTEM"].isin(["DESKTOP-A8AGHSM","10.0.0.27"])]
+    log_event = file[file[" SYSTEM"].isin(["HOST_NAME","IP_SNARE_SERVER"])]
 
     #filtering data columns
     log_event = file.loc[:,[" SYSTEM", " DATE", " TIME",  " EVENTID"]] 
